@@ -14,17 +14,18 @@ Upload a video file, and the app will:
   - estimated word count
 
 ## App Preview
+
 ### Home Page
-<img src="https://raw.githubusercontent.com/rheaesti/AI-Meeting-Summarizer-BriefUp-/main/image1.png" width="700">
+<img src="https://raw.githubusercontent.com/rheaesti/AI-Meeting-Summarizer-BriefUp-/main/Image1.png" width="700">
 
 ### Summary Output
-<img src="https://raw.githubusercontent.com/rheaesti/AI-Meeting-Summarizer-BriefUp-/main/image2.png" width="700">
+<img src="https://raw.githubusercontent.com/rheaesti/AI-Meeting-Summarizer-BriefUp-/main/Image2.png" width="700">
 
 ### Upload Page
-<img src="https://raw.githubusercontent.com/rheaesti/AI-Meeting-Summarizer-BriefUp-/main/image3.png" width="700">
+<img src="https://raw.githubusercontent.com/rheaesti/AI-Meeting-Summarizer-BriefUp-/main/Image3.png" width="700">
 
 ### Final Result
-<img src="https://raw.githubusercontent.com/rheaesti/AI-Meeting-Summarizer-BriefUp-/main/image4.png" width="700">
+<img src="https://raw.githubusercontent.com/rheaesti/AI-Meeting-Summarizer-BriefUp-/main/Image4.png" width="700">
 
 ## Features
 
