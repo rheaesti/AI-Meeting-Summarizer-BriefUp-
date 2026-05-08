@@ -13,6 +13,10 @@ Upload a video file, and the app will:
   - participants mentioned
   - estimated word count
 
+## App Preview
+![Home Page](images/image1.png)
+![Summary Output](images/image2.png/image3.png/image4.png)
+
 ## Features
 
 - Drag-and-drop UI for meeting files
