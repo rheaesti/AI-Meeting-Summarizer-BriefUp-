@@ -15,7 +15,12 @@ Upload a video file, and the app will:
 
 ## App Preview
 ![Home Page](images/image1.png)
-![Summary Output](images/image2.png/image3.png/image4.png)
+
+![Summary Output](images/image2.png)
+
+![Another Preview](images/image3.png)
+
+![Final Preview](images/image4.png)
 
 ## Features
 
