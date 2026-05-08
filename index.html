@@ -1,0 +1,922 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Meeting Summarizer</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/dist/tabler-icons.min.css">
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;1,400&family=Lora:ital,wght@0,400;0,500;1,400&display=swap');
+
+  :root {
+    --cream: #f5f0e8;
+    --warm-cream: #ede5d0;
+    --parchment: #e8ddc8;
+    --terracotta: #c4623a;
+    --terracotta-dark: #a84e2c;
+    --terracotta-light: #d4795a;
+    --sage: #5a7a5a;
+    --sage-light: #7a9a7a;
+    --teal: #3a6e6e;
+    --teal-light: #5a9090;
+    --amber: #c8882a;
+    --amber-light: #e0a840;
+    --dark-brown: #2e1f0e;
+    --mid-brown: #5a3a1a;
+    --warm-gray: #8a7a6a;
+    --border: #c8b89a;
+    --border-light: #ddd0b8;
+    --shadow: rgba(46, 31, 14, 0.12);
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: 'Lora', serif;
+    background-color: var(--cream);
+    background-image:
+      radial-gradient(ellipse at 20% 0%, rgba(196, 98, 58, 0.06) 0%, transparent 50%),
+      radial-gradient(ellipse at 80% 100%, rgba(58, 110, 110, 0.05) 0%, transparent 50%),
+      url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='400'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='400' height='400' filter='url(%23noise)' opacity='0.03'/%3E%3C/svg%3E");
+    color: var(--dark-brown);
+    min-height: 100vh;
+  }
+
+  .app {
+    max-width: 860px;
+    margin: 0 auto;
+    padding: 3rem 2rem;
+  }
+
+  .header {
+    text-align: center;
+    margin-bottom: 3rem;
+    position: relative;
+  }
+
+  .header::before {
+    content: '';
+    display: block;
+    width: 120px;
+    height: 2px;
+    background: linear-gradient(90deg, transparent, var(--terracotta), transparent);
+    margin: 0 auto 1.5rem;
+  }
+
+  .header::after {
+    content: '';
+    display: block;
+    width: 80px;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, var(--terracotta), transparent);
+    margin: 1.5rem auto 0;
+  }
+
+  .logo-row {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    margin-bottom: 0.75rem;
+  }
+
+  .logo-icon {
+    width: 48px;
+    height: 48px;
+    background: var(--terracotta);
+    border-radius: 50%;
+    border: 2px solid var(--terracotta-dark);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 22px;
+    color: var(--cream);
+    box-shadow: 0 3px 12px rgba(196, 98, 58, 0.3);
+  }
+
+  h1 {
+    font-family: 'Playfair Display', serif;
+    font-size: 2.6rem;
+    font-weight: 600;
+    color: var(--dark-brown);
+    letter-spacing: 0.5px;
+  }
+
+  .subtitle {
+    color: var(--warm-gray);
+    font-size: 15px;
+    font-style: italic;
+    font-family: 'Lora', serif;
+  }
+
+  .upload-zone {
+    border: 2px dashed var(--border);
+    border-radius: 4px;
+    padding: 3rem 2rem;
+    text-align: center;
+    background: var(--warm-cream);
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='20' height='20'%3E%3Ccircle cx='1' cy='1' r='0.5' fill='%23c8b89a' opacity='0.4'/%3E%3C/svg%3E");
+    transition: all 0.25s ease;
+    cursor: pointer;
+    margin-bottom: 1.5rem;
+    position: relative;
+    box-shadow: inset 0 1px 4px var(--shadow), 0 2px 8px var(--shadow);
+  }
+
+  .upload-zone:hover, .upload-zone.drag-over {
+    border-color: var(--terracotta);
+    background-color: #ebe0cc;
+  }
+
+  .upload-icon {
+    font-size: 48px;
+    color: var(--border);
+    margin-bottom: 1rem;
+    display: block;
+    transition: color 0.25s;
+  }
+
+  .upload-zone:hover .upload-icon, .upload-zone.drag-over .upload-icon {
+    color: var(--terracotta);
+  }
+
+  .upload-title {
+    font-family: 'Playfair Display', serif;
+    font-size: 17px;
+    font-weight: 600;
+    color: var(--mid-brown);
+    margin-bottom: 0.4rem;
+  }
+
+  .upload-subtitle {
+    font-size: 13px;
+    color: var(--warm-gray);
+    font-style: italic;
+  }
+
+  .upload-btn {
+    display: inline-block;
+    margin-top: 1.2rem;
+    background: var(--terracotta);
+    color: var(--cream);
+    border: 1px solid var(--terracotta-dark);
+    padding: 10px 26px;
+    border-radius: 2px;
+    font-size: 13px;
+    font-weight: 500;
+    cursor: pointer;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    transition: background 0.2s, transform 0.15s;
+    font-family: 'Lora', serif;
+    box-shadow: 0 2px 6px rgba(196, 98, 58, 0.25);
+  }
+
+  .upload-btn:hover { background: var(--terracotta-dark); transform: translateY(-1px); }
+  .upload-btn:active { transform: scale(0.97); }
+
+  #file-input { display: none; }
+
+  .file-info {
+    display: none;
+    align-items: center;
+    gap: 12px;
+    background: var(--warm-cream);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    padding: 1rem 1.25rem;
+    margin-bottom: 1.5rem;
+    box-shadow: 0 2px 8px var(--shadow);
+  }
+
+  .file-info.visible { display: flex; }
+
+  .file-icon-box {
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 20px;
+    flex-shrink: 0;
+    border: 1px solid;
+  }
+
+  .file-icon-box.audio { background: #e8f2e8; color: var(--sage); border-color: var(--sage-light); }
+  .file-icon-box.video { background: #e8f0f0; color: var(--teal); border-color: var(--teal-light); }
+
+  .file-details { flex: 1; }
+  .file-name { font-size: 14px; font-weight: 500; color: var(--mid-brown); font-family: 'Playfair Display', serif; }
+  .file-size { font-size: 12px; color: var(--warm-gray); margin-top: 2px; font-style: italic; }
+
+  .remove-btn {
+    background: none;
+    border: none;
+    color: var(--warm-gray);
+    cursor: pointer;
+    font-size: 18px;
+    padding: 4px;
+    border-radius: 2px;
+    display: flex;
+    align-items: center;
+    transition: color 0.2s;
+  }
+  .remove-btn:hover { color: var(--terracotta); }
+
+  .api-key-row {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 1.5rem;
+  }
+
+  .api-key-input {
+    flex: 1;
+    background: var(--warm-cream);
+    border: 1px solid var(--border);
+    border-radius: 2px;
+    padding: 12px 16px;
+    color: var(--dark-brown);
+    font-size: 14px;
+    font-family: 'Lora', serif;
+    outline: none;
+    transition: border-color 0.2s;
+    box-shadow: inset 0 1px 3px var(--shadow);
+  }
+  .api-key-input::placeholder { color: var(--border); }
+  .api-key-input:focus { border-color: var(--terracotta); }
+
+  .summarize-btn {
+    background: var(--dark-brown);
+    color: var(--cream);
+    border: 1px solid var(--mid-brown);
+    padding: 12px 32px;
+    border-radius: 2px;
+    font-size: 13px;
+    font-weight: 500;
+    cursor: pointer;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    transition: background 0.2s, transform 0.15s;
+    font-family: 'Lora', serif;
+    white-space: nowrap;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    box-shadow: 0 3px 10px rgba(46, 31, 14, 0.2);
+  }
+
+  .summarize-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+  .summarize-btn:not(:disabled):hover { background: var(--mid-brown); transform: translateY(-1px); }
+
+  .loading-bar {
+    display: none;
+    margin-bottom: 2rem;
+  }
+  .loading-bar.visible { display: block; }
+
+  .loading-label {
+    font-size: 13px;
+    color: var(--terracotta);
+    margin-bottom: 8px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-style: italic;
+  }
+
+  .bar-track {
+    height: 3px;
+    background: var(--border-light);
+    border-radius: 0;
+    overflow: hidden;
+  }
+
+  .bar-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--terracotta), var(--amber));
+    border-radius: 0;
+    width: 0%;
+    transition: width 0.4s ease;
+    animation: shimmer 1.5s infinite;
+  }
+
+  @keyframes shimmer {
+    0% { opacity: 1; }
+    50% { opacity: 0.7; }
+    100% { opacity: 1; }
+  }
+
+  .results {
+    display: none;
+    gap: 1rem;
+    flex-direction: column;
+  }
+
+  .results.visible { display: flex; }
+
+  .result-section {
+    background: var(--warm-cream);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    overflow: hidden;
+    box-shadow: 0 2px 10px var(--shadow);
+  }
+
+  .section-header {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 1rem 1.25rem;
+    border-bottom: 1px solid var(--border-light);
+    background: var(--parchment);
+  }
+
+  .section-icon {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    border: 1px solid;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 15px;
+    flex-shrink: 0;
+  }
+
+  .icon-purple { background: #ede8f5; color: var(--teal); border-color: var(--teal-light); }
+  .icon-teal { background: #e8f2ee; color: var(--sage); border-color: var(--sage-light); }
+  .icon-amber { background: #f5ede0; color: var(--amber); border-color: var(--amber-light); }
+  .icon-blue { background: #e8eeee; color: var(--teal); border-color: var(--teal-light); }
+
+  .section-title {
+    font-family: 'Playfair Display', serif;
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--mid-brown);
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+  }
+
+  .section-body {
+    padding: 1.25rem;
+  }
+
+  .meta-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+    gap: 12px;
+  }
+
+  .meta-card {
+    background: var(--parchment);
+    border: 1px solid var(--border-light);
+    border-radius: 4px;
+    padding: 14px 16px;
+    text-align: center;
+  }
+
+  .meta-value {
+    font-family: 'Playfair Display', serif;
+    font-size: 22px;
+    font-weight: 600;
+    color: var(--dark-brown);
+    display: block;
+  }
+
+  .meta-label {
+    font-size: 10px;
+    color: var(--warm-gray);
+    margin-top: 3px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+  }
+
+  .summary-text {
+    font-size: 15px;
+    line-height: 1.9;
+    color: var(--mid-brown);
+    font-style: italic;
+  }
+
+  .key-points ul {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .key-points ul li {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    font-size: 14px;
+    line-height: 1.7;
+    color: var(--mid-brown);
+  }
+
+  .kp-dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: var(--terracotta);
+    margin-top: 7px;
+    flex-shrink: 0;
+    border: 1px solid var(--terracotta-dark);
+  }
+
+  .action-items ul {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .action-items ul li {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    font-size: 14px;
+    line-height: 1.7;
+    color: var(--mid-brown);
+  }
+
+  .ai-check {
+    width: 18px;
+    height: 18px;
+    border-radius: 2px;
+    background: #e8f2ee;
+    border: 1px solid var(--sage-light);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    margin-top: 2px;
+  }
+  .ai-check i { font-size: 11px; color: var(--sage); }
+
+  .copy-bar {
+    display: flex;
+    gap: 8px;
+    padding: 0.85rem 1.25rem;
+    border-top: 1px solid var(--border-light);
+    justify-content: flex-end;
+    background: var(--parchment);
+  }
+
+  .copy-btn {
+    background: transparent;
+    border: 1px solid var(--border);
+    color: var(--warm-gray);
+    padding: 6px 14px;
+    border-radius: 2px;
+    font-size: 11px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-family: 'Lora', serif;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+    transition: all 0.2s;
+  }
+  .copy-btn:hover { border-color: var(--terracotta); color: var(--terracotta); }
+
+  .spinner {
+    display: inline-block;
+    width: 14px;
+    height: 14px;
+    border: 2px solid rgba(46,31,14,0.2);
+    border-top-color: var(--cream);
+    border-radius: 50%;
+    animation: spin 0.7s linear infinite;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  .error-box {
+    display: none;
+    background: #f5ebe8;
+    border: 1px solid #d4a090;
+    border-radius: 4px;
+    padding: 1rem 1.25rem;
+    color: var(--terracotta-dark);
+    font-size: 14px;
+    margin-bottom: 1.5rem;
+    align-items: center;
+    gap: 10px;
+  }
+  .error-box.visible { display: flex; }
+
+  .tag {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    background: var(--parchment);
+    color: var(--warm-gray);
+    font-size: 10px;
+    padding: 4px 10px;
+    border-radius: 2px;
+    border: 1px solid var(--border);
+    font-weight: 500;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    margin-left: auto;
+  }
+
+  .participants-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+
+  .participant-chip {
+    background: var(--parchment);
+    border: 1px solid var(--border);
+    border-radius: 2px;
+    padding: 5px 12px;
+    font-size: 13px;
+    color: var(--mid-brown);
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-style: italic;
+  }
+
+  .participant-chip i { font-size: 14px; color: var(--terracotta); }
+</style>
+</head>
+<body>
+<div class="app">
+  <div class="header">
+    <div class="logo-row">
+      <div class="logo-icon"><i class="ti ti-wavesaw-mono" aria-hidden="true"></i></div>
+      <h1>Brief Up</h1>
+    </div>
+    <p class="subtitle">Drop your meeting recording. Get instant clarity.</p>
+  </div>
+
+  <div class="upload-zone" id="drop-zone">
+    <i class="ti ti-cloud-upload upload-icon" aria-hidden="true"></i>
+    <p class="upload-title">Drop your meeting file here</p>
+    <p class="upload-subtitle">Supports only MP4 · Max 25MB</p>
+    <button class="upload-btn" onclick="document.getElementById('file-input').click()">
+      <i class="ti ti-folder-open" aria-hidden="true"></i> Browse Files
+    </button>
+    <input type="file" id="file-input" accept=".mp3,.mp4,.m4a,.wav,.webm,audio/*,video/*">
+  </div>
+
+  <div class="file-info" id="file-info">
+    <div class="file-icon-box" id="file-icon-box">
+      <i class="ti ti-music" aria-hidden="true"></i>
+    </div>
+    <div class="file-details">
+      <div class="file-name" id="file-name">—</div>
+      <div class="file-size" id="file-size">—</div>
+    </div>
+    <button class="remove-btn" onclick="removeFile()" aria-label="Remove file">
+      <i class="ti ti-x" aria-hidden="true"></i>
+    </button>
+  </div>
+
+  <div style="display:flex; justify-content:center; margin-bottom:1.5rem;">
+  <button class="summarize-btn" id="summarize-btn" onclick="summarize()" disabled>
+    <i class="ti ti-sparkles"></i> Summarize
+  </button>
+</div>
+
+  <div class="error-box" id="error-box">
+    <i class="ti ti-alert-circle" aria-hidden="true"></i>
+    <span id="error-msg">Something went wrong.</span>
+  </div>
+
+  <div class="loading-bar" id="loading-bar">
+    <div class="loading-label">
+      <span class="spinner"></span>
+      <span id="loading-label-text">Analyzing your meeting...</span>
+    </div>
+    <div class="bar-track"><div class="bar-fill" id="bar-fill"></div></div>
+  </div>
+
+  <div class="results" id="results">
+
+    <div class="result-section">
+      <div class="section-header">
+        <div class="section-icon icon-blue"><i class="ti ti-info-circle" aria-hidden="true"></i></div>
+        <span class="section-title">Meeting Overview</span>
+        <span class="tag" id="file-type-tag"><i class="ti ti-file" aria-hidden="true"></i> File</span>
+      </div>
+      <div class="section-body">
+        <div class="meta-grid" id="meta-grid">
+          <div class="meta-card">
+            <span class="meta-value" id="meta-duration">—</span>
+            <span class="meta-label">Duration</span>
+          </div>
+          <div class="meta-card">
+            <span class="meta-value" id="meta-type">—</span>
+            <span class="meta-label">File Type</span>
+          </div>
+          <div class="meta-card">
+            <span class="meta-value" id="meta-size">—</span>
+            <span class="meta-label">File Size</span>
+          </div>
+          <div class="meta-card">
+            <span class="meta-value" id="meta-words">—</span>
+            <span class="meta-label">Approx. Words</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="result-section">
+      <div class="section-header">
+        <div class="section-icon icon-purple"><i class="ti ti-align-left" aria-hidden="true"></i></div>
+        <span class="section-title">Summary</span>
+      </div>
+      <div class="section-body">
+        <p class="summary-text" id="summary-text">Loading...</p>
+      </div>
+      <div class="copy-bar">
+        <button class="copy-btn" onclick="copyText('summary-text')"><i class="ti ti-copy" aria-hidden="true"></i> Copy</button>
+      </div>
+    </div>
+
+    <div class="result-section">
+      <div class="section-header">
+        <div class="section-icon icon-amber"><i class="ti ti-bulb" aria-hidden="true"></i></div>
+        <span class="section-title">Key Points</span>
+      </div>
+      <div class="section-body key-points">
+        <ul id="key-points-list"></ul>
+      </div>
+      <div class="copy-bar">
+        <button class="copy-btn" onclick="copyList('key-points-list')"><i class="ti ti-copy" aria-hidden="true"></i> Copy</button>
+      </div>
+    </div>
+
+    <div class="result-section">
+      <div class="section-header">
+        <div class="section-icon icon-teal"><i class="ti ti-checkbox" aria-hidden="true"></i></div>
+        <span class="section-title">Action Items</span>
+      </div>
+      <div class="section-body action-items">
+        <ul id="action-items-list"></ul>
+      </div>
+    </div>
+
+    <div class="result-section" id="participants-section">
+      <div class="section-header">
+        <div class="section-icon icon-blue"><i class="ti ti-users" aria-hidden="true"></i></div>
+        <span class="section-title">Participants Mentioned</span>
+      </div>
+      <div class="section-body">
+        <div class="participants-list" id="participants-list"></div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<script>
+let selectedFile = null;
+
+const dropZone = document.getElementById('drop-zone');
+const fileInput = document.getElementById('file-input');
+const fileInfo = document.getElementById('file-info');
+const fileName = document.getElementById('file-name');
+const fileSize = document.getElementById('file-size');
+const fileIconBox = document.getElementById('file-icon-box');
+const summarizeBtn = document.getElementById('summarize-btn');
+
+dropZone.addEventListener('dragover', e => { e.preventDefault(); dropZone.classList.add('drag-over'); });
+dropZone.addEventListener('dragleave', () => dropZone.classList.remove('drag-over'));
+dropZone.addEventListener('drop', e => {
+  e.preventDefault();
+  dropZone.classList.remove('drag-over');
+  const file = e.dataTransfer.files[0];
+  if (file) handleFile(file);
+});
+
+fileInput.addEventListener('change', () => {
+  if (fileInput.files[0]) handleFile(fileInput.files[0]);
+});
+
+
+function handleFile(file) {
+  const allowed = ['mp3','mp4','m4a','wav','webm'];
+  const ext = file.name.split('.').pop().toLowerCase();
+  if (!allowed.includes(ext)) { showError('Unsupported file type. Please use MP3, MP4, M4A, WAV, or WebM.'); return; }
+  if (file.size > 24.9 * 1024 * 1024) { showError('File too large. Groq Whisper only accepts files up to 25MB. Please compress or trim your recording.'); return; }
+  hideError();
+  selectedFile = file;
+  fileName.textContent = file.name;
+  fileSize.textContent = formatSize(file.size);
+  const isVideo = ['mp4','webm'].includes(ext);
+  fileIconBox.className = 'file-icon-box ' + (isVideo ? 'video' : 'audio');
+  fileIconBox.innerHTML = `<i class="ti ti-${isVideo ? 'video' : 'music'}" aria-hidden="true"></i>`;
+  fileInfo.classList.add('visible');
+  dropZone.style.display = 'none';
+  checkReady();
+}
+
+function removeFile() {
+  selectedFile = null;
+  fileInfo.classList.remove('visible');
+  dropZone.style.display = '';
+  fileInput.value = '';
+  document.getElementById('results').classList.remove('visible');
+  checkReady();
+}
+
+function checkReady() {
+  summarizeBtn.disabled = !selectedFile;
+}
+
+function formatSize(bytes) {
+  if (bytes < 1024) return bytes + ' B';
+  if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(1) + ' KB';
+  return (bytes / (1024 * 1024)).toFixed(2) + ' MB';
+}
+
+function formatDuration(seconds) {
+  const h = Math.floor(seconds / 3600);
+  const m = Math.floor((seconds % 3600) / 60);
+  const s = Math.floor(seconds % 60);
+  if (h > 0) return `${h}h ${m}m`;
+  return `${m}m ${s}s`;
+}
+
+function showError(msg) {
+  document.getElementById('error-msg').textContent = msg;
+  document.getElementById('error-box').classList.add('visible');
+}
+function hideError() { document.getElementById('error-box').classList.remove('visible'); }
+
+function setProgress(pct, label) {
+  document.getElementById('bar-fill').style.width = pct + '%';
+  if (label) document.getElementById('loading-label-text').textContent = label;
+}
+
+function copyText(id) {
+  const el = document.getElementById(id);
+  navigator.clipboard.writeText(el.textContent).then(() => {
+    const btn = event.currentTarget;
+    btn.innerHTML = '<i class="ti ti-check" aria-hidden="true"></i> Copied!';
+    setTimeout(() => { btn.innerHTML = '<i class="ti ti-copy" aria-hidden="true"></i> Copy'; }, 1500);
+  });
+}
+
+function copyList(id) {
+  const items = [...document.getElementById(id).querySelectorAll('li')].map((li, i) => `${i+1}. ${li.querySelector('span') ? li.querySelector('span').textContent : li.textContent}`).join('\n');
+  navigator.clipboard.writeText(items).then(() => {
+    const btn = event.currentTarget;
+    btn.innerHTML = '<i class="ti ti-check" aria-hidden="true"></i> Copied!';
+    setTimeout(() => { btn.innerHTML = '<i class="ti ti-copy" aria-hidden="true"></i> Copy'; }, 1500);
+  });
+}
+
+async function getAudioDuration(file) {
+  return new Promise(resolve => {
+    const url = URL.createObjectURL(file);
+    const media = document.createElement(file.type.startsWith('video') ? 'video' : 'audio');
+    media.src = url;
+    media.addEventListener('loadedmetadata', () => {
+      URL.revokeObjectURL(url);
+      resolve(isFinite(media.duration) ? media.duration : null);
+    });
+    media.addEventListener('error', () => { URL.revokeObjectURL(url); resolve(null); });
+    setTimeout(() => resolve(null), 5000);
+  });
+}
+
+async function fileToBase64(file) {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => resolve(reader.result.split(',')[1]);
+    reader.onerror = reject;
+    reader.readAsDataURL(file);
+  });
+}
+
+async function summarize() {
+
+  hideError();
+
+  if (!selectedFile) return;
+
+  summarizeBtn.disabled = true;
+  summarizeBtn.innerHTML = '<span class="spinner"></span> Processing...';
+
+  const loadingBar = document.getElementById('loading-bar');
+  loadingBar.classList.add('visible');
+
+  setProgress(20, 'Uploading meeting...');
+
+  const formData = new FormData();
+  formData.append('file', selectedFile);
+
+  try {
+
+    const response = await fetch('/summarize', {
+      method: 'POST',
+      body: formData
+    });
+
+    const text = await response.text();
+
+    if (!text || !text.trim()) {
+      throw new Error(
+        'Empty server response. This usually means the server crashed. ' +
+        'Check your terminal for a Python traceback and make sure GROQ_API_KEY is set in your .env'
+      );
+    }
+
+    let data;
+
+    try {
+      data = JSON.parse(text);
+    } catch (err) {
+      console.error('Raw server response:', text);
+      throw new Error('Server returned invalid JSON. Raw response logged to console.');
+    }
+
+    if (!response.ok) {
+      throw new Error(data.error || `Server error (HTTP ${response.status})`);
+    }
+
+    setProgress(80, 'Generating summary...');
+
+    const parsed = data;
+
+    const duration = await getAudioDuration(selectedFile);
+
+    setProgress(100, 'Done!');
+
+    setTimeout(() => {
+      loadingBar.classList.remove('visible');
+      renderResults(parsed, duration);
+      resetBtn();
+    }, 500);
+
+  } catch (e) {
+
+    showError(e.message);
+
+    loadingBar.classList.remove('visible');
+
+    resetBtn();
+  }
+}
+
+function renderResults(data, duration) {
+  const ext = selectedFile.name.split('.').pop().toUpperCase();
+  const isVideo = ['MP4','WEBM'].includes(ext);
+
+  document.getElementById('meta-duration').textContent = duration ? formatDuration(duration) : '—';
+  document.getElementById('meta-type').textContent = ext;
+  document.getElementById('meta-size').textContent = formatSize(selectedFile.size);
+  document.getElementById('meta-words').textContent = data.estimatedWordCount ? data.estimatedWordCount.toLocaleString() : '—';
+
+  const tag = document.getElementById('file-type-tag');
+  tag.innerHTML = `<i class="ti ti-${isVideo ? 'video' : 'music'}" aria-hidden="true"></i> ${isVideo ? 'Video' : 'Audio'}`;
+
+  document.getElementById('summary-text').textContent = data.summary || 'No summary available.';
+
+  const kpList = document.getElementById('key-points-list');
+  kpList.innerHTML = '';
+  (data.keyPoints || []).forEach(point => {
+    const li = document.createElement('li');
+    li.innerHTML = `<div class="kp-dot"></div><span>${point}</span>`;
+    kpList.appendChild(li);
+  });
+
+  const aiList = document.getElementById('action-items-list');
+  aiList.innerHTML = '';
+  (data.actionItems || []).forEach(item => {
+    const li = document.createElement('li');
+    li.innerHTML = `<div class="ai-check"><i class="ti ti-check" aria-hidden="true"></i></div><span>${item}</span>`;
+    aiList.appendChild(li);
+  });
+
+  const participants = data.participants || [];
+  const pList = document.getElementById('participants-list');
+  pList.innerHTML = '';
+  document.getElementById('participants-section').style.display = participants.length ? '' : 'none';
+  participants.forEach(p => {
+    const chip = document.createElement('div');
+    chip.className = 'participant-chip';
+    chip.innerHTML = `<i class="ti ti-user" aria-hidden="true"></i>${p}`;
+    pList.appendChild(chip);
+  });
+
+  document.getElementById('results').classList.add('visible');
+  document.getElementById('results').scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+function resetBtn() {
+  summarizeBtn.disabled = false;
+  summarizeBtn.innerHTML = '<i class="ti ti-sparkles" aria-hidden="true"></i> Summarize';
+  checkReady();
+}
+</script>
+</body>
+</html>
