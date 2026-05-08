@@ -37,7 +37,7 @@ Upload a video file, and the app will:
 - Flask
 - Groq Python SDK
 - python-dotenv
-- Vanilla HTML/CSS/JS frontend
+- HTML/CSS/JS frontend
 
 ## Project Structure
 
