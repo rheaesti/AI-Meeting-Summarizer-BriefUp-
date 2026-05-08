@@ -14,10 +14,13 @@ Upload a video file, and the app will:
   - estimated word count
 
 ## App Preview
+![Home Page](images/image1.png)
 
-<img src="https://raw.githubusercontent.com/rheaesti/AI-Meeting-Summarizer-BriefUp/main/image1.png" width="700">
+![Summary Output](images/image2.png)
 
-<img src="https://raw.githubusercontent.com/rheaesti/AI-Meeting-Summarizer-BriefUp/main/image2.png" width="700">
+![Another Preview](images/image3.png)
+
+![Final Preview](images/image4.png)
 
 ## Features
 
